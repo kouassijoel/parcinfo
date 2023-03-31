@@ -1,0 +1,11 @@
+.submit-row p.deletelink-box {
+    float: right;
+}
+
+.submit-row [type=submit] {
+    float: left !important;
+}
+
+.submit-row [name=_save] {
+    margin-left: 0;
+}

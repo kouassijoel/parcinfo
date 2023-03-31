@@ -1,0 +1,33 @@
+{% extends 'admin/base.html' %}
+{% load admin_urls %}
+{% block content  %}
+<div class="container  d-flex justify-content-center">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow border" style="width: 42rem;text-align: left;font-size: 20px">
+        <div class="card-body h4">
+          Maintenance
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Raison social: {{fournisseur.raison_social}}</li>
+       </ul><li class="list-group-item">Email: {{fournisseur.email}}</li>
+       <li class="list-group-item">Telephone: {{fournisseur.telephone}}</li>
+       <li class="list-group-item">Situation geographique: {{fournisseur.situation_geographique}}</li>
+       <li class="list-group-item">Domaine activite: {{fournisseur.domaine_activite}}</li>
+      </div>
+      
+    </div>
+    <div class="col-6 d-flex justify-content-start row">
+      <a href="{% url 'admin:parcinformatique_fournisseur_change' fournisseur.id %}" class="btn-lg btn-primary">Modifier</a>
+    </div >
+    <div class="col-3 d-flex justify-content-end">
+      <a href="{% url 'admin:parcinformatique_fournisseur_changelist'  %}" class="btn-lg btn-danger">Fermer</a>
+    </div>
+  </div>
+  
+</div>
+
+
+{% endblock  %}
+
+<a href="{% url 'admin:parcinformatique_maintenance_changelist'  %}" class="btn btn-secondary">Fermer</a>

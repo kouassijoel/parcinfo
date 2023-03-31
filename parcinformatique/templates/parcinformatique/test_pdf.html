@@ -1,0 +1,202 @@
+
+<html>
+    {% load static %}
+    <head>
+        <style type="text/css">
+          #header_content {
+            border: 0.3rem solid;
+
+          }
+            @page {
+                size: a4 portrait;
+                
+                @frame header_content {
+                  left: 50pt;
+                  width: 512pt;
+                  top: 90pt;
+                  height: 50pt;
+                  
+              }
+                @frame header_frame {           /* Static Frame */
+                    -pdf-frame-content: header_content1;
+                    left: 60pt; width: 512pt; top: 8pt; height: 50pt;
+                    text-align:center;
+                   
+                }
+                
+                @frame content_frame {          /* Content Frame */
+                    left: 50pt; width: 512pt; top: 160pt; height: 632pt;
+                }
+                @frame footer_frame {           /* Another static Frame */
+                    -pdf-frame-content: footer_content;
+                    left: 50pt; width: 512pt; top: 800pt; height: 20pt;
+                }
+                
+            }
+            table {
+                border: 0px solid #555;
+                border-collapse: collapse;
+                font: 14px "Lucida Grande", "Helvetica", "Arial", sans-serif;
+              }
+              th, td {
+                border: 2px solid #bbb;
+                padding: 2px 8px 0;
+                text-align: left;
+              }
+              
+              li, h2{
+                font-size: 14px;
+
+              }
+
+              body {
+                fontfont-family: 'Nanum Gothic', sans-serif;
+              }
+              
+            
+
+        </style>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Oswald&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    </head>
+    
+    <body>
+        
+   <div>
+    
+    <div>      
+   <div class="container">
+    <div class="card">
+        <div id="header_content1">
+            
+           <img src="https://ngser.com/wp-content/uploads/2018/04/logo-finale.png" height="50" width="150">
+        </div>
+    <div class="card">
+        <div id="header_content">
+            
+            <p style="padding-top: 100%; margin-left:90px; margin-right:90px; font-size: 20px; text-align:center; line-height: 150%;">DECHARGE DE PRISE D’ORDINATEUR PORTABLE </p> 
+        </div>
+
+        <!-- Content for Static Frame 'footer_frame' -->
+        <div id="footer_content"> <pdf:pagenumber>
+            / <pdf:pagecount>
+        </div>
+        
+        <p style="font-size: 16px;">
+        Je soussigné,{{attribution.ressource}} {% for ressource in ressource %}{% if attribution.ressource == ressource %}né le  {{ressource.date_naissances}} à {{ressource.lieu_naissance}} 
+        titulaire du numéro                                       
+        de {{ressource.type_pieces }} {{ressource.numero_pieces}} employé en qualité de {{ressource.fonction}} dans la société de NGSER,
+        sise au Plateau, Avenue Lambin, Immeuble MATCA, 4è étage, atteste avoir reçu ce jour un ordinateur 
+        portable ayant les caractéristiques suivantes :
+        </p>
+        {% endif %}
+        {% endfor %}
+
+            <li class="list-group-item" style="font-size: 16px;">Numero de serie:{{attribution.mumero_de_serie}}</li>
+            {% for materiel in materiel %}
+            {% if attribution.mumero_de_serie  == materiel %}
+            <li class="list-group-item" style="font-size: 16px;">Marque: {{materiel.marque}}</li>
+            <li class="list-group-item" style="font-size: 16px;">Modele: {{materiel.modele}}</li>
+            <li class="list-group-item" style="font-size: 16px;">Processeur: {{materiel.processeur}}</li>
+            <li class="list-group-item" style="font-size: 16px;">Disque dure type: {{materiel.type_disque_dur}}</li>
+            <li class="list-group-item" style="font-size: 16px;">Taille de disque: {{materiel.disque_dur}}</li>
+            
+            
+            <p style="font-size: 16px;">
+                Je reconnais que le matériel mis à ma disposition est la propriété de NGSER et m’engage à:<br>
+                1) n’utiliser le matériel que dans le cadre strictement professionnel.<br>
+                2) restituer le matériel et ses accessoires au Responsable des Moyens Généraux de NGSER en bon état de fonctionnement avant mon départ de la société et enfin
+                3) ne pas conserver des informations personnelles dans le matériel;<br>
+                Toutefois, je m’engage à payer un forfait conformément à la grille annexée à la présente décharge en cas de:<br>
+                • Perte ou dégradation du matériel et de ses accessoires imputables à ma faute, ayant causé le dysfonctionnement partiel ou total du matériel et ses accessoires ;<br>
+                • Perte ou destruction non consécutive à l’usage normal des accessoires du matériel.<br> 
+                La liste des accessoires du matériel qui se dégradent à l’usage normal est annexée à la présente décharge.<br><br>
+                         Fait à Abidjan le {{attribution}}, En trois (3) exemplaires originaux.
+        
+        
+                </p>
+        {% endif %}
+        {% endfor %}
+
+       
+        
+                 
+</div>
+{% for ressource in ressource %}{% if attribution.ressource == ressource %}
+<section>
+    <h2 style="font-size:18px; text-decoration: underline;padding-top: 50px%">EMPLOYE</h2>
+    <p style="font-size:16px">{{ressource}}</br>{{ressource.numero_telephone}} </p>
+</section>
+{%endif%}
+{%endfor%}
+
+    <section>
+        <h2 style="font-size:18px; text-decoration: underline; text-align:right;padding-top: -118px%">NGSER</h2>
+        <p style=" text-align:right;font-size:16px">{{user.prenom}}</br>{{user.numero_telephone}}
+        </p>
+    </section>
+<div><br><br>
+<div>
+    <h2 style="text-decoration: underline"; font-size:22px;>ANNEX 1:</h2>
+    <h2>La liste des accessoires du matériel qui se dégradent à l’usage normal:</h2>
+
+    <ul >
+        <li style="font-size: 16px">Le Système d’exploitation;</li>
+        <li style="font-size: 16px">La batterie;</li>
+        <li style="font-size: 16px"style="font-size: 16px">Le câble d’alimentation électrique (chargeur);</li>
+        <li style="font-size: 16px">Le clavier;</li>
+        <li style="font-size: 16px">L’écran.</li>
+        <li style="font-size: 16px">La carte mère.</li>
+    </ul>
+      
+</div>
+<br><br><br>
+
+<table>
+    <thead>
+      <tr>
+        <th>DUREE D’UTILISATION DU MATERIEL</th>
+        <th colspan="3">PRIX D’ACQUISITION DU MATERIEL ET FORFAIT A PAYER</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>( En FCFA)</td>
+        <td>0 - 500.000 F</td>
+        <td>500.000 - 1000.000F</td>
+        <td>plus 1000.000 F</td>
+      </tr>
+      <tr>
+        <td>0 - 1 an</td>
+        <td>70%</td>
+        <td>70%</td>
+        <td>80%</td>
+      </tr>
+      <tr>
+        <td>1 -  2 ans</td>
+        <td>50%</td>
+        <td>50%</td>
+        <td>70%</td>
+      </tr>
+      <tr>
+        <td>2 - 3 ans</td>
+        <td>40%</td>
+        <td>40%</td>
+        <td>50%</td>
+      </tr>
+      <tr>
+        <td>plus de 3 ans</td>
+        <td>30%</td>
+        <td>30%</td>
+        <td>40%</td>
+      </tr>
+    </tbody>
+  </table>
+  
+
+
+
+</body>
+</html>
+   

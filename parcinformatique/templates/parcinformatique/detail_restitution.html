@@ -1,0 +1,56 @@
+{% extends 'admin/base.html' %}
+{% load i18n admin_modify  admin_urls %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card" style="width: 90%; height: 10%">
+        <ul class="list-group">
+        <li class="list-group-item active h4"> Date attribution</li>
+        <li class="list-group-item">{{attribution}}</li>
+        
+        
+        <li class="list-group-item active h4">Detail Materiel</li>
+        <li class="list-group-item">Numero de serie:{{attribution.mumero_de_serie}}</li>
+        {% for materiel in materiel %}
+        {% if attribution.mumero_de_serie  == materiel %}
+        <li class="list-group-item">Marque: {{materiel.marque}}</li>
+        <li class="list-group-item">Modele: {{materiel.modele}}</li>
+        <li class="list-group-item">Processeur: {{materiel.processeur}}</li>
+        <li class="list-group-item">Rame: {{materiel.rame}}</li>
+        <li class="list-group-item">Disque dure type: {{materiel.type_disque_dur}}</li>
+        <li class="list-group-item">Taille de disque: {{materiel.disque_dur}}</li>
+        <li class="list-group-item">Taille ecran: {{materiel.taille_ecran}}</li>
+        <li class="list-group-item">Etat d'achat: {{materiel.etat_achat}}</li>
+        {% endif %}
+        
+        {% endfor %}
+
+        <li class="list-group-item active h4">Detail Ressource</li>
+        <li class="list-group-item">Ressource: {{attribution.ressource}}</li>
+        {% for ressource in ressource %}
+        {% if attribution.ressource == ressource %}
+        <li class="list-group-item">Date naissance: {{ressource.date_naissances}}</li>
+        <li class="list-group-item">Lieu de naissance: {{ressource.lieu_naissance }}</li>
+        <li class="list-group-item">Type de piece: {{ressource.type_pieces }}</li>
+        <li class="list-group-item">Date naissance: {{ressource.date_naissances}}</li>
+        <li class="list-group-item">Lieu de naissance: {{ressource.lieu_naissance }}</li>
+        <li class="list-group-item">Numero de pieces: {{ressource.numero_pieces}}</li>
+        <li class="list-group-item">Numero telephone: {{ressource.numero_telephone}}</li>
+        <li class="list-group-item">Fonction: {{ressource.fonction}}</li>
+        <li class="list-group-item">Service: {{ressource.service}}</li>
+        <li class="list-group-item">Email: {{ressource.email}}</li>
+        
+        
+        {% endif %}
+        {% endfor %}
+       
+      </ul>
+
+    </div>
+    
+</div>
+    {% endblock content %}
+
+
+

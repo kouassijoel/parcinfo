@@ -1,0 +1,38 @@
+{% extends 'admin/base.html' %}
+{% load admin_urls %}
+{% block content  %}
+<div class="container  d-flex justify-content-center">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow border" style="width: 42rem;text-align: left;font-size: 20px">
+        <div class="card-body h4">
+         Ressource
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Nom: {{ressource.nom}}</li>
+          <li class="list-group-item">Prenom: {{ressource.prenom}}</li>
+          <li class="list-group-item">Service: {{ressource.service}}</li>
+          <li class="list-group-item">Date naissance: {{ressource.date_naissances}}</li>
+          <li class="list-group-item">Lieu naissance: {{ressource.lieu_naissance}}</li>
+          <li class="list-group-item">Fonction: {{ressource.fonction}}</li>
+          <li class="list-group-item">Type_pieces: {{ressource.type_pieces}}</li>
+          <li class="list-group-item">Numeropieces: {{ressource.numero_pieces}}</li>
+          <li class="list-group-item">Email: {{ressource.email}}</li>
+          <li class="list-group-item">Numero telephone: {{ressource.numero_telephone}}</li>
+        </ul>
+       
+      </div>
+      
+    </div>
+    <div class="col-6 d-flex justify-content-start row">
+      <a href="{% url 'admin:parcinformatique_ressource_change' ressource.id %}" class="btn-lg btn-primary">Modifier</a>
+    </div >
+    <div class="col-3 d-flex justify-content-end">
+      <a href="{% url 'admin:parcinformatique_ressource_changelist'  %}" class="btn-lg btn-danger">Fermer</a>
+    </div>
+  </div>
+  
+</div>
+
+
+{% endblock  %}
