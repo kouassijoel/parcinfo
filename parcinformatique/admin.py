@@ -2,9 +2,9 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib.auth import get_user_model
+from django.contrib import messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.urls import path
-from django.shortcuts import HttpResponseRedirect
 from django.utils.html import format_html
 from django.urls import reverse
 from django.http import HttpResponse
@@ -15,16 +15,44 @@ from .forms import *
 from .models import *
 User = get_user_model()
 
+
+class RemoveAdminDefaultMessageMixin:
+
+    def remove_default_message(self, request):
+        storage = messages.get_messages(request)
+        try:
+            del storage._queued_messages[-1]
+        except KeyError:
+            pass
+        return True
+
+    def response_add(self, request, obj, post_url_continue=None):
+        """override"""
+        response = super().response_add(request, obj, post_url_continue)
+        self.remove_default_message(request)
+        return response
+
+    def response_change(self, request, obj):
+        """override"""
+        response = super().response_change(request, obj)
+        self.remove_default_message(request)
+        return response
+
+    def response_delete(self, request, obj_display, obj_id):
+        """override"""
+        response = super().response_delete(request, obj_display, obj_id)
+        self.remove_default_message(request)
+        return response
+
 # Register your models here.
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     form = UserAdminChangeForm
     add_form = UserAdminCreationForm
-
+    list_display = ['id','email', 'nom','prenom','numero_telephone','status','profile','detail','supprimer']
     
-    
-    list_display = ['email', 'nom','prenom','numero_telephone','status','profile','supprimer','detail']
     list_filter = ['status','email']
+    ordering=('-id')
     fieldsets = (
     (None, {'fields': ('email', 'password',)}),
     ('Personal info', {'fields': ('nom','prenom','numero_telephone','profile',)}),
@@ -41,6 +69,25 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
     ordering = ['-id']
     filter_horizontal = ()
+
+
+    def save_model(self, request, obj, form, change):
+        if 'raison_social' in form.changed_data:
+            messages.add_message(request, messages.SUCCESS, 'Utilisateur ajouter avec succes')
+        super(AdminFourisseur, self).save_model(request, obj, form, change)
+
+    def has_add_permission(self, request, obj=None):
+        return request.user.status
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.status
+    
+    def has_change_permission(self, request, obj=None):
+        return request.user.status
+
+    
+    def has_changeList_permission(self, request, obj=None):
+        return request.user.status
     
     def supprimer(self, obj):
         view_name = "admin:{}_{}_delete".format(obj._meta.app_label, obj._meta.model_name)
@@ -70,14 +117,23 @@ class UserAdmin(BaseUserAdmin):
         extra_context['show_save_and_add_another'] = False
 
         return super().changeform_view(request, object_id, form_url, extra_context)
+
+    class Meta:
+        verborse_name="Utilisateur"
    
     
 @admin.register(Ressource)
-class AdminRessource(admin.ModelAdmin):
+class AdminRessource(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
     list_display = ("id","nom", "prenom","numero_telephone","service",'detail',"supprimer")
     search_fields = ["numero_telephone"]
     ordering = ['-id']
     list_per_page = 10
+    change_form_template = "parcinformatique/change_form_ressource.html"
+
+    def save_model(self, request, obj, form, change):
+        if 'nom' in form.changed_data:
+            messages.add_message(request, messages.SUCCESS, 'Ressource ajouter avec succes')
+        super(AdminRessource    , self).save_model(request, obj, form, change)
 
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -134,12 +190,17 @@ class AdminRessource(admin.ModelAdmin):
 
 #    materiel = models.ManyToManyField(Materiel)
 @admin.register(Materiel)
-class AdminMateriel(admin.ModelAdmin):
+class AdminMateriel(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
     list_display =('id',"numero_serie","marque",'modele','etat_achat','fournisseur',"date_acquisition",'detail','supprimer')
     ordering = ['-id']
     search_fields = ["numero_serie"]
     list_per_page = 10
-    #change_form_template = 'parcinformatique/parc_change_form.html'
+    change_form_template = 'parcinformatique/form_change_materiel.html'
+
+    def save_model(self, request, obj, form, change):
+        if 'numero_serie' in form.changed_data:
+            messages.add_message(request, messages.SUCCESS, 'Materiel ajouter avec succes')
+        super(AdminMateriel, self).save_model(request, obj, form, change)
 
       
     def get_form(self, request, obj=None, **kwargs):
@@ -210,11 +271,12 @@ class AdminMateriel(admin.ModelAdmin):
 
 
 @admin.register(Fournisseur)
-class AdminFourisseur(admin.ModelAdmin):
+class AdminFourisseur(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
     list_display = ("id","raison_social","email","telephone",'detail',"supprimer")
     search_fields = ["raison_socail"]
     ordering = ['-id']
     list_per_page = 10
+    "parcinformatique/change_form_fournisseur.html"
 
     def change_view(self, request, object_id=None, form_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -239,6 +301,11 @@ class AdminFourisseur(admin.ModelAdmin):
         extra_context['show_history'] = False
 
         return super().changeform_view(request, object_id, form_url, extra_context)
+    
+    def save_model(self, request, obj, form, change):
+        if 'raison_social' in form.changed_data:
+            messages.add_message(request, messages.INFO, 'Fournisseur ajouter avec succes')
+        super(AdminFourisseur, self).save_model(request, obj, form, change)
 
     def supprimer(self, obj):
         view_name = "admin:{}_{}_delete".format(obj._meta.app_label, obj._meta.model_name)
@@ -274,12 +341,17 @@ class AdminFourisseur(admin.ModelAdmin):
     
 #Action pour faire la restitution des des materiels
 @admin.register(Attribution)
-class AdminAttribution(admin.ModelAdmin):
+class AdminAttribution(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
     list_display = ('id','ressource','mumero_de_serie','date_debut','detail', 'modif','pdf')
     search_fields = ["resource",'mumero']
     ordering = ['-id']
     list_per_page = 10
-    #change_form_template = "parcinformatique/base.html"
+    change_form_template ="parcinformatique/form_change_attributions.html"
+
+    def save_model(self, request, obj, form, change):
+        if 'ressource' in form.changed_data:
+            messages.add_message(request, messages.SUCCESS, 'Attribution effectuer avec succes')
+        super(AdminAttribution, self).save_model(request, obj, form, change)
 
     def change_view(self, request, object_id=None, form_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -379,12 +451,17 @@ class AdminAttribution(admin.ModelAdmin):
         return actions
     
 @admin.register(Maintenance)
-class AdminMaintenance(admin.ModelAdmin):
+class AdminMaintenance(RemoveAdminDefaultMessageMixin, admin.ModelAdmin):
     list_display = ('id',"materiels","maintenancier",'date_part','date_retour','status','detail',"supprimer")
     search_fields = ["materiel",'maintenacier']
-    ordering = ['id']
+    ordering = ['-id']
     list_per_page = 10
-    
+    change_form_template ="parcinformatique/change_form_maintenance.html"
+
+    def save_model(self, request, obj, form, change):
+        if 'materiels' in form.changed_data:
+            messages.add_message(request, messages.SUCCESS, 'Maintenance ajouter avec succes')
+        super(AdminMaintenance, self).save_model(request, obj, form, change)
 
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -439,11 +516,16 @@ class AdminMaintenance(admin.ModelAdmin):
         return actions
     
 @admin.register(Maintenancier) 
-class AdminMaintenancier(admin.ModelAdmin):
+class AdminMaintenancier(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
       list_display = ('id','raison_social','email','situation_geographique','telephone','detail','supprimer')
       search_fields = ["raison_socail"]
       list_per_page = 10
+      change_form_template ="parcinformatique/change_form_maintenancier.html"
 
+      def save_model(self, request, obj, form, change):
+        if 'raison_social' in form.changed_data:
+            messages.add_message(request, messages.SUCCESS, 'Maintenancier ajouter avec succes')
+        super(AdminMaintenancier, self).save_model(request, obj, form, change)
 
       def supprimer(self, obj):
         view_name = "admin:{}_{}_delete".format(obj._meta.app_label, obj._meta.model_name)
@@ -493,7 +575,7 @@ class AdminMaintenancier(admin.ModelAdmin):
         return actions
 
 @admin.register(TypeMateriel)
-class AdminTypeMateriel(admin.ModelAdmin):
+class AdminTypeMateriel(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
     list_display = ("id","libelle","supprimer","detail")
 
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
@@ -523,9 +605,17 @@ class AdminTypeMateriel(admin.ModelAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
-class AdminRestitution(admin.ModelAdmin):
+    
+class AdminRestitution(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
 
     list_display = ['id','materiel','ressource','date_restitution','detail','supprimer']
+    change_form_template ="parcinformatique/change_form_restitution.html"
+
+    def save_model(self, request, obj, form, change):
+        if 'materiel' in form.changed_data:
+            messages.add_message(request, messages.SUCCESS, 'Restitution effectuer avec succes')
+        super(AdminRestitution, self).save_model(request, obj, form, change)
+
     def change_view(self, request, object_id=None, form_url='', extra_context=None):
         extra_context = extra_context or {}
 
@@ -620,15 +710,28 @@ class AdminRestitution(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
     
-        
+from django.db.models import Count
+
 class MyAdminSite(admin.AdminSite):
     index_template = "parcinformatique/test.html"
+
+    
     def index(self, request, extra_context=None):
         extra_context = {}
         extra_context['materiel'] = Materiel.objects.all().count()
+        extra_context['materiel1'] = Materiel.objects.all()
+        extra_context['materiel2'] = Materiel.objects.values("marque").annotate(Count("id"))
+        extra_context['materiel3'] = Materiel.objects.values("processeur").annotate(Count("id"))
+        extra_context['ressource'] = Ressource.objects.values("service").annotate(Count("id"))
+        print(extra_context['ressource'])
         extra_context['attribution'] = Attribution.objects.all().count()
         extra_context['maintenance'] = Maintenance.objects.all().count()
-        extra_context['somme'] = Materiel.objects.all().count() - Attribution.objects.all().count()
+        extra_context['somme'] = 0
+        if extra_context['somme'] < 0:
+            print("0")
+        else:
+            extra_context['somme'] = Materiel.objects.all().count() - Attribution.objects.all().count()
+
 
         return super(MyAdminSite, self).index(request, extra_context)
 

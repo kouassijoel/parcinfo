@@ -70,54 +70,61 @@
     <div class="container-fluid py-4">
       <div class="row">
         <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-header p-3 pt-2">
-              <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
-                <i class="material-icons opacity-10">Materiel</i>
+          <a href="{% url 'admin:parcinformatique_materiel_changelist'  %}">
+            <div class="card">
+              <div class="card-header p-3 pt-2">
+                <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                  <i class="material-icons opacity-10">Materiel</i>
+                </div>
+                <div class="text-end pt-1">
+                  <p class="text-sm mb-0 text-capitalize">TOTAL </p>
+                  <h4 class="mb-0">{{materiel}}</h4>
+                </div>
               </div>
-              <div class="text-end pt-1">
-                <p class="text-sm mb-0 text-capitalize">Ordinateur disponible</p>
-                <h4 class="mb-0">{{materiel}}</h4>
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-3">
+                <p class="mb-0"><span class="text-success text-sm font-weight-bolder"></span></p>
               </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-success text-sm font-weight-bolder"></span></p>
-            </div>
+          </a>
+          
           </div>
         </div>
         <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-header p-3 pt-2">
-              <div class="icon icon-lg icon-shape bg-gradient-success shadow-success text-center border-radius-xl mt-n4 position-absolute">
-                <i class="material-icons opacity-10">Attribution</i>
+          <a href="{% url 'admin:parcinformatique_attribution_changelist'  %}">
+            <div class="card">
+              <div class="card-header p-3 pt-2">
+                <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                  <i class="material-icons opacity-10">Attribution</i>
+                </div>
+                <div class="text-end pt-1">
+                  <p class="text-sm mb-0 text-capitalize">TOTAL </p>
+                  <h4 class="mb-0">{{attribution}}</h4>
+                </div>
               </div>
-              <div class="text-end pt-1">
-                <p class="text-sm mb-0 text-capitalize">Attribution Effectuer</p>
-                <h4 class="mb-0">{{attribution}}</h4>
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-3">
+                <p class="mb-0"><span class="text-success text-sm font-weight-bolder"></span></p>
               </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-danger text-sm font-weight-bolder"></span></p>
-            </div>
+          </a>
           </div>
         </div>
         <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-header p-3 pt-2">
-              <div class="icon icon-lg icon-shape bg-gradient-primary shadow-primary text-center border-radius-xl mt-n4 position-absolute">
-                <i class="material-icons opacity-10">Maintenance</i>
+          <a href="{% url 'admin:parcinformatique_maintenance_changelist'  %}">
+            <div class="card">
+              <div class="card-header p-3 pt-2">
+                <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                  <i class="material-icons opacity-10">Maintenance</i>
+                </div>
+                <div class="text-end pt-1">
+                  <p class="text-sm mb-0 text-capitalize">TOTAL </p>
+                  <h4 class="mb-0">{{maintenance}}</h4>
+                </div>
               </div>
-              <div class="text-end pt-1">
-                <p class="text-sm mb-0 text-capitalize">Materiel en maintenance</p>
-                <h4 class="mb-0">{{maintenance}}</h4>
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-3">
+                <p class="mb-0"><span class="text-success text-sm font-weight-bolder"></span></p>
               </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-success text-sm font-weight-bolder"></span></p>
-            </div>
+          </a>
           </div>
         </div>
         
@@ -209,7 +216,7 @@
         new Chart(ctx, {
           type: 'bar',
           data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            labels: [{% for ressource in ressource %}'{{ressource.service}}',{%endfor%}],
             datasets: [{
               label: '# Materiel',
               data: [12, 19, 3, 5, 2, 3],
@@ -224,17 +231,32 @@
             }
           }
         });
-        const ctx1 = document.getElementById('myChart1');
+        const ctx1 = document.getElementById('myChart1').getContext('2d');
       
         new Chart(ctx1, {
           type: 'bar',
           data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            labels: [{% for materiel in materiel2 %}'{{materiel.marque}}',{%endfor%}],
             datasets: [{
-              label: '# Attribution',
-              data: [12, 19, 3, 5, 2, 3],
-              backgroundColor: 'red',
-              borderWidth: 1
+              label: '# Materiel',
+              data: [{% for materiel in materiel2 %}'{{materiel.id__count}}',{%endfor%}],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)', 
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+              borderWidth: 2  
             }]
           },
           options: {
@@ -250,10 +272,10 @@
         new Chart(ctx2, {
           type: 'bar',
           data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            labels: [{% for materiel in materiel3 %}'{{materiel.processeur}}',{%endfor%}],
             datasets: [{
               label: '# Maintenance',
-              data: [12, 19, 3, 5, 2, 3],
+              data: [{% for materiel in materiel3 %}'{{materiel.id__count}}',{%endfor%}],
               backgroundColor: 'green',
               borderWidth: 1
             }]

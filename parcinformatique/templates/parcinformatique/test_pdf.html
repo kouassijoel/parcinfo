@@ -25,7 +25,7 @@
                 }
                 
                 @frame content_frame {          /* Content Frame */
-                    left: 50pt; width: 512pt; top: 160pt; height: 632pt;
+                    left: 50pt; width: 512pt; top: 150pt; height: 632pt;
                 }
                 @frame footer_frame {           /* Another static Frame */
                     -pdf-frame-content: footer_content;
@@ -39,7 +39,7 @@
                 font: 14px "Lucida Grande", "Helvetica", "Arial", sans-serif;
               }
               th, td {
-                border: 2px solid #bbb;
+                border: 1px solid black;
                 padding: 2px 8px 0;
                 text-align: left;
               }
@@ -125,14 +125,14 @@
 </div>
 {% for ressource in ressource %}{% if attribution.ressource == ressource %}
 <section>
-    <h2 style="font-size:18px; text-decoration: underline;padding-top: 50px%">EMPLOYE</h2>
+    <h2 style="font-size:18px; text-decoration: underline;padding-top: 20px%">EMPLOYE</h2>
     <p style="font-size:16px">{{ressource}}</br>{{ressource.numero_telephone}} </p>
 </section>
 {%endif%}
 {%endfor%}
 
     <section>
-        <h2 style="font-size:18px; text-decoration: underline; text-align:right;padding-top: -118px%">NGSER</h2>
+        <h2 style="font-size:18px; text-decoration: underline; text-align:right;padding-top: -100px%">NGSER</h2>
         <p style=" text-align:right;font-size:16px">{{user.prenom}}</br>{{user.numero_telephone}}
         </p>
     </section>

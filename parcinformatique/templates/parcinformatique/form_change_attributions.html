@@ -1,0 +1,8 @@
+{% extends 'admin/change_form.html' %}
+{% block object-tools %}
+    <div class="object-tools col-md-12 center-block">
+      <a href="{% url 'admin:parcinformatique_attribution_changelist'  %}" class="btn-lg btn-danger">Fermer</a>
+    </div>
+    <br />
+    {{ block.super }}
+{% endblock %}

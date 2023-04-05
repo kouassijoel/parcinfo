@@ -51,7 +51,7 @@ class User(AbstractBaseUser):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     numero_telephone = models.CharField(max_length=100)
-    profile = models.CharField(max_length=50,default=True ,choices=[('ADMIN', ('ADMIN')),('IT',('IT')),
+    profile = models.CharField(max_length=50,default=True ,choices=[ ('IT',('IT')),
                                                       ('SUPERVISEUR', ('SUPERVISEUR'))])
     email = models.EmailField(
         verbose_name='email address',
@@ -66,7 +66,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = [] # Email & Password sont requis par défaut.
 
     class Meta:
-        verbose_name = "Utilisateurs"
+        verbose_name = "Utilisateur"
 
     def get_full_name(self):
         # L'utilisateur est identifié par son adresse e-mail
@@ -98,11 +98,7 @@ class User(AbstractBaseUser):
     def get_all_permissions(user=None):
         if user.is_admin or user.is_staff:
             return set()
-    
-    class Meta:
-        verbose_name = "Utlisateurs"
-    
-    
+      
 
 
 # Create your models here.
@@ -149,7 +145,7 @@ class Materiel(models.Model):
     ]
 
     CONSTRUCTEUR = [
-        ('PH','HP'),
+        ('HP','HP'),
         ('DELL','DELL'),
         ('LENEVO','LENEVO'),
         ('ASUS','ASUS'),
@@ -267,7 +263,12 @@ class Restitution(models.Model):
     description = models.TextField(max_length=150)
     date_restitution = models.DateField(auto_now_add=True)
     fichier = models.FileField(upload_to="upload", max_length=254)
+ 
+    @property
+    def ressource_restitution(self):
+        for materiel in self.ressource_restitution.all():
+            return materiel
 
     def __str__(self):
         return self.description
-    
+   
