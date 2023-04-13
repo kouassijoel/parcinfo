@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # Create your models here.
 from django.db import models
 from django.contrib.auth.models import (
@@ -177,7 +178,7 @@ class Materiel(models.Model):
         ('15 Pouce','15 Pouce'),
         ('17 Pouce','17 Pouce'),
     ]
-    type_materiel = models.ForeignKey(TypeMateriel,on_delete=models.CASCADE)
+    type_materiel = models.ForeignKey(TypeMateriel,on_delete=models.PROTECT)
     marque = models.CharField(max_length=10, choices=CONSTRUCTEUR)  
     numero_serie = models.CharField(max_length=100)
     modele = models.CharField(max_length=50)
@@ -211,7 +212,7 @@ class Ressource(models.Model):
     date_naissances = models.DateField()
     lieu_naissance = models.CharField(max_length=50)
     fonction = models.CharField(max_length=50, default=True)
-    type_pieces = models.ForeignKey(TypePieces,on_delete=models.CASCADE)
+    type_pieces = models.ForeignKey(TypePieces,on_delete=models.PROTECT)
     numero_pieces = models.CharField(max_length=100)
     email = models.EmailField(blank=True)
     numero_telephone = models.CharField(max_length=10)
@@ -235,18 +236,26 @@ class Maintenancier(models.Model):
     #Creation de la table type de piece
 
 #Creation de la table Attribution
-class Attribution(models.Model):
-    ressource = models.ForeignKey(Ressource, on_delete=models.CASCADE)
-    mumero_de_serie = models.OneToOneField(Materiel, on_delete=models.CASCADE,unique=True)
-    date_debut = models.DateField("Debut d'attribution", auto_now_add= True)
 
+class Attribution(models.Model):
+    NO = True
+
+    
+    ressource = models.ForeignKey(Ressource, on_delete=models.PROTECT)
+    mumero_de_serie = models.OneToOneField(Materiel, on_delete=models.PROTECT,unique=True)
+    
+    status = models.BooleanField(
+        default=NO,
+        )
+    date_debut = models.DateField("Debut d'attribution", auto_now_add= True)
+    
     def __str__(self):
-        return str(self.date_debut)
+        return str(self.mumero_de_serie)
 
 
 class Maintenance(models.Model):
-    materiels = models.ForeignKey(Materiel, on_delete =models.CASCADE)
-    maintenancier = models.ForeignKey(Maintenancier, on_delete = models.CASCADE)
+    materiels = models.ForeignKey(Materiel, on_delete =models.PROTECT)
+    maintenancier = models.ForeignKey(Maintenancier, on_delete = models.PROTECT)
     date_part = models.DateField(help_text="Date de part" ,blank=True,null=True)
     date_retour = models.DateField(help_text="Date de retour" ,blank=True,null=True)
     status = models.CharField(max_length=50, choices=[('EN MAINTENANCE', ('En maintenance')),
@@ -256,19 +265,52 @@ class Maintenance(models.Model):
     def __str__(self):
         return str(self.date_part)
 
+from django.db.models import DEFERRED
 
 class Restitution(models.Model):
-    ressource = models.ForeignKey(Ressource, on_delete=models.CASCADE)
-    materiel = models.ForeignKey(Materiel, on_delete=models.CASCADE, default= True)
+    ressource = models.ForeignKey(Ressource, on_delete=models.CASCADE,related_name="ressource")
+    materiel = models.ForeignKey(Attribution, on_delete=models.CASCADE, default= True,related_name="materiel")
     description = models.TextField(max_length=150)
     date_restitution = models.DateField(auto_now_add=True)
-    fichier = models.FileField(upload_to="upload", max_length=254)
- 
-    @property
-    def ressource_restitution(self):
-        for materiel in self.ressource_restitution.all():
-            return materiel
+    fichier = models.FileField(upload_to="upload", max_length=150)
 
+
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        # Default implementation of from_db() (subject to change and could
+        # be replaced with super()).
+        if len(values) != len(cls._meta.concrete_fields):
+            values = list(values)
+            values.reverse()
+            values = [
+                values.pop() if f.attname in field_names else DEFERRED
+                for f in cls._meta.concrete_fields
+            ]
+        instance = cls(*values)
+        instance._state.adding = False
+        instance._state.db = db
+        # customization to store the original field values on the instance
+        instance._loaded_values = dict(
+            zip(field_names, (value for value in values if value is not DEFERRED))
+        )
+        return instance
+
+
+    def save(self, *args, **kwargs):
+        # Check how the current values differ from ._loaded_values. For example,
+        # prevent changing the creator_id of the model. (This example doesn't
+        # support cases where 'creator_id' is deferred).
+        if not self._state.adding and (
+            self.creator_id != self._loaded_values["creator_id"]
+        ):
+            raise ValueError("Updating the value of creator isn't allowed")
+        super().save(*args, **kwargs)
+    
+    def save(self, *args, **kwargs):
+        super().save(args, kwargs)                                                                                                                           
+        Attribution.objects.filter(status=True,mumero_de_serie_id=self.materiel.id).update(status=False)
+    
     def __str__(self):
         return self.description
-   
+    
+    

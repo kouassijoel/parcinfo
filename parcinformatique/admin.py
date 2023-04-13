@@ -74,7 +74,7 @@ class UserAdmin(BaseUserAdmin):
     def save_model(self, request, obj, form, change):
         if 'raison_social' in form.changed_data:
             messages.add_message(request, messages.SUCCESS, 'Utilisateur ajouter avec succes')
-        super(AdminFourisseur, self).save_model(request, obj, form, change)
+        super(UserAdmin, self).save_model(request, obj, form, change)
 
     def has_add_permission(self, request, obj=None):
         return request.user.status
@@ -84,6 +84,7 @@ class UserAdmin(BaseUserAdmin):
     
     def has_change_permission(self, request, obj=None):
         return request.user.status
+    
 
     
     def has_changeList_permission(self, request, obj=None):
@@ -152,6 +153,8 @@ class AdminRessource(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
         form.base_fields['type_pieces'].widget.can_view_related = False
         form.base_fields['type_pieces'].widget.can_change_related = False
         form.base_fields['service'].widget.can_view_related = False
+        form.base_fields['type_pieces'].widget.can_delete_related = False
+        form.base_fields['service'].widget.can_delete_related = False
         return form
     
 
@@ -195,6 +198,7 @@ class AdminMateriel(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
     ordering = ['-id']
     search_fields = ["numero_serie"]
     list_per_page = 10
+    #list_filter =["numero_serie"]
     change_form_template = 'parcinformatique/form_change_materiel.html'
 
     def save_model(self, request, obj, form, change):
@@ -342,8 +346,9 @@ class AdminFourisseur(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
 #Action pour faire la restitution des des materiels
 @admin.register(Attribution)
 class AdminAttribution(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
-    list_display = ('id','ressource','mumero_de_serie','date_debut','detail', 'modif','pdf')
-    search_fields = ["resource",'mumero']
+    list_display = ('id','ressource','mumero_de_serie','date_debut','status','detail', 'modif','pdf')
+    search_fields = ["ressource",'mumero','status']
+    fields = ["ressource", "mumero_de_serie"]                                                                                                                                                                                                 
     ordering = ['-id']
     list_per_page = 10
     change_form_template ="parcinformatique/form_change_attributions.html"
@@ -399,7 +404,7 @@ class AdminAttribution(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
         user = request.user
         template_path = "parcinformatique/test_pdf.html"
         context = {'materiel': materiel,'attribution': attributition,'ressource': ressource,'user':user}
-        # Create a Django response object, and specify content_type as pdf
+        # Create a Django response objecstatust, and specify content_type as pdf
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'filename="ressource.pdf"'
         # find the template and render it.
@@ -605,12 +610,20 @@ class AdminTypeMateriel(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
-    
-class AdminRestitution(RemoveAdminDefaultMessageMixin,admin.ModelAdmin):
+
+
+
+
+
+class AdminRestitution(admin.ModelAdmin):
 
     list_display = ['id','materiel','ressource','date_restitution','detail','supprimer']
     change_form_template ="parcinformatique/change_form_restitution.html"
+    #inlines = [ContentInlineAdmin]
+    search_fields = ['materiel','ressource']
+    list_per_page = 10
 
+    
     def save_model(self, request, obj, form, change):
         if 'materiel' in form.changed_data:
             messages.add_message(request, messages.SUCCESS, 'Restitution effectuer avec succes')
@@ -722,8 +735,7 @@ class MyAdminSite(admin.AdminSite):
         extra_context['materiel1'] = Materiel.objects.all()
         extra_context['materiel2'] = Materiel.objects.values("marque").annotate(Count("id"))
         extra_context['materiel3'] = Materiel.objects.values("processeur").annotate(Count("id"))
-        extra_context['ressource'] = Ressource.objects.values("service").annotate(Count("id"))
-        print(extra_context['ressource'])
+        extra_context['ressource'] = Service.objects.values("libelle").annotate(Count("id"))
         extra_context['attribution'] = Attribution.objects.all().count()
         extra_context['maintenance'] = Maintenance.objects.all().count()
         extra_context['somme'] = 0
@@ -747,6 +759,7 @@ my_admin_site.register(Maintenancier,AdminMaintenancier)
 my_admin_site.register(Restitution,AdminRestitution)
 my_admin_site.register(Service)
 my_admin_site.register(TypePieces)
+my_admin_site.register(TypeMateriel,AdminTypeMateriel)
 #Modification du siteAdmin
 admin.site.site_header = "PARC INFORMATIQUE"
 admin.site.site_title = "PARC INFORMATIQUE"

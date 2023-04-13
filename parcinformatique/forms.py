@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from . models import *
 
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
@@ -39,5 +40,13 @@ class AttributionsForm(forms.ModelForm):
         model = Attribution
         fields = '__all__'
     password = ReadOnlyPasswordHashField()
-        
-    
+
+
+class RestitutionAdminForm(forms.ModelForm):
+    materiel = forms.ModelMultipleChoiceField(
+        queryset=Materiel.objects.all(),
+        widget=FilteredSelectMultiple(verbose_name='materiel', is_stacked=False))
+
+    class Meta:
+        model = Restitution
+        fields = "__all__"
