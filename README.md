@@ -35,7 +35,12 @@ Cet projet consite a met en place un systeme de gestions des materiels (Ordinate
    Vous verez un lien copier cette dans votre navigateur.
 
     http://127.0.0.1:8080
+    
+6- Migrations des données dans la base de données. Veuillez saissir cette commande dans le dossier parcinfo
+dans le console
 
+    python manage.py makemigrations & python manage.py migrate
+    
 6- La page vous demanderas de vous connecté.
    Pour créer un super-utilisateur tapez dans le console de votre projet  cette commande pour en creer un :
 
